@@ -1,71 +1,74 @@
 <template>
-  <div class="baccarat-table">
-    <div class="game-area">
-      <div class="dealer-area">
-        <Transition name="win">
-          <div v-if="gameState.winner === 'banker'" class="win-text">
-            WIN
+  <div class="baccarat-game">
+    <GameRules />
+    <div class="baccarat-table">
+      <div class="game-area">
+        <div class="dealer-area">
+          <Transition name="win">
+            <div v-if="gameState.winner === 'banker'" class="win-text">
+              WIN
+            </div>
+          </Transition>
+          <h3>庄家 ({{ gameState.bankerScore }})</h3>
+          <div class="cards">
+            <CardComponent v-for="(card, index) in gameState.bankerCards" 
+                          :key="`${card.suit}-${card.value}`"
+                          :card="card"
+                          :index="index"
+                          :position="'banker'"
+                          :class="{ 'extra': index >= 2 }" />
           </div>
-        </Transition>
-        <h3>庄家 ({{ gameState.bankerScore }})</h3>
-        <div class="cards">
-          <CardComponent v-for="(card, index) in gameState.bankerCards" 
-                        :key="`${card.suit}-${card.value}`"
-                        :card="card"
-                        :index="index"
-                        :position="'banker'"
-                        :class="{ 'extra': index >= 2 }" />
+        </div>
+        
+        <div class="player-area">
+          <Transition name="win">
+            <div v-if="gameState.winner === 'player'" class="win-text">
+              WIN
+            </div>
+          </Transition>
+          <h3>闲家 ({{ gameState.playerScore }})</h3>
+          <div class="cards">
+            <CardComponent v-for="(card, index) in gameState.playerCards" 
+                          :key="`${card.suit}-${card.value}`"
+                          :card="card"
+                          :index="index"
+                          :position="'player'"
+                          :class="{ 'extra': index >= 2 }" />
+          </div>
         </div>
       </div>
-      
-      <div class="player-area">
-        <Transition name="win">
-          <div v-if="gameState.winner === 'player'" class="win-text">
-            WIN
-          </div>
-        </Transition>
-        <h3>闲家 ({{ gameState.playerScore }})</h3>
-        <div class="cards">
-          <CardComponent v-for="(card, index) in gameState.playerCards" 
-                        :key="`${card.suit}-${card.value}`"
-                        :card="card"
-                        :index="index"
-                        :position="'player'"
-                        :class="{ 'extra': index >= 2 }" />
+
+      <div class="betting-area">
+        <div class="bet-options">
+          <button @click="placeBet('player')" 
+                  :disabled="gameState.gameStatus !== 'waiting'">
+            闲家 (1:1)
+          </button>
+          <button @click="placeBet('banker')" 
+                  :disabled="gameState.gameStatus !== 'waiting'">
+            庄家 (0.95:1)
+          </button>
+          <button @click="placeBet('tie')" 
+                  :disabled="gameState.gameStatus !== 'waiting'">
+            和局 (8:1)
+          </button>
         </div>
+        
+        <button class="deal-button" 
+                @click="startGame" 
+                :disabled="gameState.gameStatus !== 'waiting'">
+          发牌
+        </button>
       </div>
     </div>
 
-    <div class="betting-area">
-      <div class="bet-options">
-        <button @click="placeBet('player')" 
-                :disabled="gameState.gameStatus !== 'waiting'">
-          闲家 (1:1)
-        </button>
-        <button @click="placeBet('banker')" 
-                :disabled="gameState.gameStatus !== 'waiting'">
-          庄家 (0.95:1)
-        </button>
-        <button @click="placeBet('tie')" 
-                :disabled="gameState.gameStatus !== 'waiting'">
-          和局 (8:1)
-        </button>
-      </div>
-      
-      <button class="deal-button" 
-              @click="startGame" 
-              :disabled="gameState.gameStatus !== 'waiting'">
-        发牌
-      </button>
+    <div class="balance">
+      余额: {{ balance }}
     </div>
-  </div>
-
-  <div class="balance">
-    余额: {{ balance }}
-  </div>
-  
-  <div v-if="gameState.winner" class="result">
-    <button @click="resetGame">再来一局</button>
+    
+    <div v-if="gameState.winner" class="result">
+      <button @click="resetGame">再来一局</button>
+    </div>
   </div>
 </template>
 
@@ -75,6 +78,7 @@ import type { GameState, BetState } from '../types/game';
 import CardComponent from './Card.vue';
 import { GameService } from '../services/gameService';
 import { audioService } from '../services/audioService';
+import GameRules from './GameRules.vue'
 
 const gameService = new GameService();
 
