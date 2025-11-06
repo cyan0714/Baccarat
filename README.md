@@ -1,6 +1,6 @@
 # Vue 百家乐游戏
 
-一个使用 Vue 3、TypeScript 和 Vite 构建的现代百家乐纸牌游戏。[试一下](https://cyan0714.github.io/Baccarat/)
+一个使用 Vue 3、TypeScript 和 Vite 构建的现代百家乐纸牌游戏。纯娱乐.[试一下](https://cyan0714.github.io/Baccarat/)
 
 ![百家乐游戏截图](./src/assets/image.png)
 
